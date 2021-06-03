@@ -1,0 +1,1 @@
+Esse trabalho tem por objetivo a estruturação de um workflow de machine learning capaz de escalar e sustentar equipes de um ou mais cientistas de dados.
