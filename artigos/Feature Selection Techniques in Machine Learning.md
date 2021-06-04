@@ -1,9 +1,9 @@
+
+![alt text](https://github.com/leokri89/effective-data-platform/blob/26bf043df34568d8457c91c11481e7c1ae6beae8/artigos/teste-estatistico-marco-mello.001.png "Resumo")
 ## Introduction
 When building a machine learning model in real-life, it’s almost rare that all the variables in the dataset are useful to build a model. Adding redundant variables reduces the generalization capability of the model and may also reduce the overall accuracy of a classifier. Furthermore adding more and more variables to a model increases the overall complexity of the model.
 
 As per the Law of Parsimony of ‘Occam’s Razor’, the best explanation to a problem is that which involves the fewest possible assumptions. Thus, feature selection becomes an indispensable part of building machine learning models.
-
- 
 
 ## Goal
 The goal of feature selection in machine learning is to find the best set of features that allows one to build useful models of studied phenomena.
@@ -25,8 +25,6 @@ C. Embedded methods
 D. Hybrid methods
 
 In this article, we will discuss some popular techniques of feature selection in machine learning.
-
- 
 
 ## A. Filter methods
 Filter methods pick up the intrinsic properties of the features measured via univariate statistics instead of cross-validation performance. These methods are faster and less computationally expensive than wrapper methods. When dealing with high-dimensional data, it is computationally cheaper to use filter methods.
