@@ -1,5 +1,5 @@
 
-![alt text](https://github.com/leokri89/effective-data-platform/blob/26bf043df34568d8457c91c11481e7c1ae6beae8/artigos/teste-estatistico-marco-mello.001.png "Resumo")
+![alt text](https://github.com/leokri89/effective-data-platform/blob/f4ec9d0bcdee45d5b6298ed033eb5fad025e6b62/artigos/method_resume.png "Resumo")
 ## Introduction
 When building a machine learning model in real-life, it’s almost rare that all the variables in the dataset are useful to build a model. Adding redundant variables reduces the generalization capability of the model and may also reduce the overall accuracy of a classifier. Furthermore adding more and more variables to a model increases the overall complexity of the model.
 
