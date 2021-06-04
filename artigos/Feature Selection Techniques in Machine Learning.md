@@ -45,55 +45,103 @@ importances = mutual_info_classif(X, y)
 feat_importances = pd.Series(importances, dataframe.columns)
 feat_importances.plot(kind='barh', color='blue')
 plt.show()
-
 ```
 feature selection - information gain
 
 #### Chi-square Test
 The Chi-square test is used for categorical features in a dataset. We calculate Chi-square between each feature and the target and select the desired number of features with the best Chi-square scores. In order to correctly apply the chi-squared in order to test the relation between various features in the dataset and the target variable, the following conditions have to be met: the variables have to be categorical, sampled independently and values should have an expected frequency greater than 5.
+```python
+from sklearn. feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
 
+# Convert to categorical data by converting data to integers
+X_cat = X.astype(int)
+
+# Three features with highest chi-squared statistics are selected
+chi2_features - SelectKBest(chi2, k = 3)
+X_kbest_features = chi2_features.fit_transform(X_cat, Y)
+
+# Reduced features
+print('Original feature number:', X_cat.shape[1])
+print('Reduced feature number:', X_kbest_features.shape[1])
+```
 feature selection - Chi square
 
 #### Fisher’s Score
 Fisher score is one of the most widely used supervised feature selection methods. The algorithm which we will use returns the ranks of the variables based on the fisher’s score in descending order. We can then select the variables as per the case.
+```python
+from skfeature.function.similarity_based import fisher_score
 
+ranks = fisher_score.fisher_score(X, y)
+importances = pd.Series(ranks, X.columns)
+importances
+```
 feature selection - Fishers score
 
 #### Correlation Coefficient
 Correlation is a measure of the linear relationship of 2 or more variables. Through correlation, we can predict one variable from the other. The logic behind using correlation for feature selection is that the good variables are highly correlated with the target. Furthermore, variables should be correlated with the target but should be uncorrelated among themselves.
 
 If two variables are correlated, we can predict one from the other. Therefore, if two features are correlated, the model only really needs one of them, as the second one does not add additional information. We will use the Pearson Correlation here.
+```python
+import seaborn as sns
+import matplotlib.pyplot as plt
 
+cor = dataset.corr()
+
+plt.figure(figsize=[20,10])
+sns.heatmap(cor, annot = True)
+```
 feature selection - correlation
 
 We need to set an absolute value, say 0.5 as the threshold for selecting the variables. If we find that the predictor variables are correlated among themselves, we can drop the variable which has a lower correlation coefficient value with the target variable. We can also compute multiple correlation coefficients to check whether more than two variables are correlated to each other. This phenomenon is known as multicollinearity.
 
 #### Variance Threshold
 The variance threshold is a simple baseline approach to feature selection. It removes all features which variance doesn’t meet some threshold. By default, it removes all zero-variance features, i.e., features that have the same value in all samples. We assume that features with a higher variance may contain more useful information, but note that we are not taking the relationship between feature variables or feature and target variables into account, which is one of the drawbacks of filter methods.
+```python
+from sklearn.feature_selection import VarianceThreshold
 
+var_threshold = VarianceThreshold(threshold=0)
+var_threshold.fit(X)
+var_threshold.get_support()
+```
 feature selection - variance threshold
 
 The get_support returns a Boolean vector where True means that the variable does not have zero variance.
 
 #### Mean Absolute Difference (MAD)
 ‘The mean absolute difference (MAD) computes the absolute difference from the mean value. The main difference between the variance and MAD measures is the absence of the square in the latter. The MAD, like the variance, is also a scale variant.’ [1] This means that higher the MAD, higher the discriminatory power.
+```python
+import numpy as np
+import matplotlib as plt
 
+shape = X.shape[0]
+X_mean = np.mean(X, axis=0)
+X_sum = np.sum(np.abs(X - X_mean), axis=0)
+mean_abs_diff = X_sum / X.shape[0]
+
+plt.bar( np.arange(X.shape[1]), mean_abs_diff )
+```
 Mean Absolute error
 
 Dispersion ratio
 ‘Another measure of dispersion applies the arithmetic mean (AM) and the geometric mean (GM). For a given (positive) feature Xi on n patterns, the AM and GM are given by
-
-AM and GM
+![alt text](https://cdn.analyticsvidhya.com/wp-content/uploads/2020/10/Image-16.png "AM and GM")
 
 respectively; since AMi ≥ GMi, with equality holding if and only if Xi1 = Xi2 = …. = Xin, then the ratio
-
-RM
+![alt text](https://cdn.analyticsvidhya.com/wp-content/uploads/2020/10/Image-17.png "RM Formula")
 
 can be used as a dispersion measure. Higher dispersion implies a higher value of Ri, thus a more relevant feature. Conversely, when all the feature samples have (roughly) the same value, Ri is close to 1, indicating a low relevance feature.’ [1]
+```python
+X = X+1
 
-AM, GM Python code
+am = np.mean(X, axis=0)
+shape = X.shape[0]
+gm = np.power( np.prod(X, axis=0 ), 1 / shape)
 
-AM , GM graph‘
+disp_ratio = am / gm
+
+plt.bar( np.arange(X.shape[1], disp_ratio) )
+```
 
 ## B. Wrapper Methods:
 Wrappers require some method to search the space of all possible subsets of features, assessing their quality by learning and evaluating a classifier with that feature subset. The feature selection process is based on a specific machine learning algorithm that we are trying to fit on a given dataset. It follows a greedy search approach by evaluating all the possible combinations of features against the evaluation criterion. The wrapper methods usually result in better predictive accuracy than filter methods.
