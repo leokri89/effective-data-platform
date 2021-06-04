@@ -132,6 +132,9 @@ respectively; since AMi ≥ GMi, with equality holding if and only if Xi1 = Xi2 
 
 can be used as a dispersion measure. Higher dispersion implies a higher value of Ri, thus a more relevant feature. Conversely, when all the feature samples have (roughly) the same value, Ri is close to 1, indicating a low relevance feature.’ [1]
 ```python
+import numpy as np
+import matplotlib as plt
+
 X = X+1
 
 am = np.mean(X, axis=0)
@@ -150,26 +153,83 @@ Let’s, discuss some of these techniques:
 
 #### Forward Feature Selection
 This is an iterative method wherein we start with the best performing variable against the target. Next, we select another variable that gives the best performance in combination with the first selected variable. This process continues until the preset criterion is achieved.
+```python
+from sklearn.linear_model import LinearRegression
+from mlxtend.feature_selection import SequentialFeatureSelector
 
+lr = LinearRegression()
+sfs = SequentialFeatureSelector(lr, k_features='best', forward=True, n_jobs=-1)
+sfs.fit(X, y)
+
+features = list( sfs.k_features_names_ )
+selected_features = list( map(int, features) )
+
+lr.fit( X_train[selected_features], y_train )
+y_pred = lr.predict( x_test[selected_features] )
+```
 forward selection
 
 #### Backward Feature Elimination
 This method works exactly opposite to the Forward Feature Selection method. Here, we start with all the features available and build a model. Next, we the variable from the model which gives the best evaluation measure value. This process is continued until the preset criterion is achieved.
+```python
+from sklearn.linear_model import LinearRegression
+from mlxtend.feature_selection import SequentialFeatureSelector
 
+lr = LinearRegression(  class_weight='balanced',
+                        solver='lbfgs',
+                        n_jobs=-1,
+                        max_iter=500,
+                        random_state=1)
+lr.fit(X, y)
+
+bfs = SequentialFeatureSelector(lr, k_features='best', forward=False, n_jobs=-1)
+bfs.fit(X, y)
+
+features = list(bfs.k_features_names_)
+selected_features = list( map(int,features) )
+
+lt.fit(X_train[selected_features], y_train)
+y_pred = lt.predict(X_test[selected_features])
+```
 backward feature elimination
 
 This method along with the one discussed above is also known as the Sequential Feature Selection method.
 
 #### Exhaustive Feature Selection
 This is the most robust feature selection method covered so far. This is a brute-force evaluation of each feature subset. This means that it tries every possible combination of the variables and returns the best performing subset.
+```python
+from mlextend.feature_selection import ExhaustiveFeatureSelector
 
+from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier()
+efs = ExhaustiveFeatureSelector(rfc,
+                                min_features=10,
+                                max_features=30,
+                                scoring='roc_auc',
+                                cv=5)
+
+efs.fit(X, y)
+
+selected_features = X.columns[list(efs.best_idx_)]
+display(selected_features)
+display(efs.best_score_)
+```
 Exhaustive feature Selection
 
 #### Recursive Feature Elimination
 ‘Given an external estimator that assigns weights to features (e.g., the coefficients of a linear model), the goal of recursive feature elimination (RFE) is to select features by recursively considering smaller and smaller sets of features. First, the estimator is trained on the initial set of features and the importance of each feature is obtained either through a coef_ attribute or through a feature_importances_ attribute.
 
 Then, the least important features are pruned from the current set of features. That procedure is recursively repeated on the pruned set until the desired number of features to select is eventually reached.’[2]
+```python
+from sklearn.linear_model import LinearRegression
+from sklearn.feature_selection import RFE
 
+lr = LinearRegression()
+rfe = RFE(lr, n_features_to_select=10)
+rfe.fit(X_train, y_train)
+y_pred = rfe.predict(X_test)
+```
 Recursive
 
  
@@ -181,12 +241,34 @@ Let’s, discuss some of these techniques click here:
 
 #### LASSO Regularization (L1)
 Regularization consists of adding a penalty to the different parameters of the machine learning model to reduce the freedom of the model, i.e. to avoid over-fitting. In linear model regularization, the penalty is applied over the coefficients that multiply each of the predictors. From the different types of regularization, Lasso or L1 has the property that is able to shrink some of the coefficients to zero. Therefore, that feature can be removed from the model.
+```python
+from sklearn.linear_model import LinearRegression
+from sklearn.feature_selection import SelectFromModel
 
+lr = LogisticRegression(C=1, penalty="l1", solver="liblinear", random_state=1)
+lr.fit(X, y)
+
+model = SelectFromModel(lr, prefit=True)
+
+X_sfm = model.transform( X )
+
+selected_columns = X.columns[ X_sfm.var() != 0 ]
+selected_columns
+```
 LASSO
 
 #### Random Forest Importance
 Random Forests is a kind of a Bagging Algorithm that aggregates a specified number of decision trees. The tree-based strategies used by random forests naturally rank by how well they improve the purity of the node, or in other words a decrease in the impurity (Gini impurity) over all trees. Nodes with the greatest decrease in impurity happen at the start of the trees, while notes with the least decrease in impurity occur at the end of trees. Thus, by pruning trees below a particular node, we can create a subset of the most important features.
+```python
+from sklearn.ensemble import RandomForestClassifier
 
+model = RandomForestClassifier(n_estimator=500)
+
+model.fit(X, y)
+
+importances = model.feature_importances_
+display(importances)
+```
 Random Forest
 
  
