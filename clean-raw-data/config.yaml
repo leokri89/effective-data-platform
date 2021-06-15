@@ -1,0 +1,8 @@
+
+projeto: data-engineering-2
+transient_bucket: bpc-transient-area
+raw_bucket: bpc-raw-area
+
+prefix: atlasdb/cluster-01.tcqut.mongodb.net/credmarket/Users/extract_day={extract_day}
+
+tmp_folder: ./processed
