@@ -1,0 +1,58 @@
+server{
+        server_name datahub.dadosbpc.com;
+
+        location /{
+         proxy_http_version 1.1;
+         proxy_pass "http://127.0.0.1:9002";
+        }
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/datahub.dadosbpc.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/datahub.dadosbpc.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+
+server{
+    if ($host = datahub.dadosbpc.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+        listen 80;
+        server_name datahub.dadosbpc.com;
+    return 404; # managed by Certbot
+
+
+}
+
+server{
+        server_name mlflow.dadosbpc.com;
+
+        location /{
+         proxy_http_version 1.1;
+         proxy_pass "http://127.0.0.1:5000";
+        }
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/mlflow.dadosbpc.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/mlflow.dadosbpc.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+
+}
+
+server{
+    if ($host = mlflow.dadosbpc.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+        listen 80;
+        server_name mlflow.dadosbpc.com;
+    return 404; # managed by Certbot
+
+
+}
