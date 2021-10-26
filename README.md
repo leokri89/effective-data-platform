@@ -1,3 +1,3 @@
 # effective-data-platform
 
-https://raw.githubusercontent.com/leokri89/effective-data-platform/main/VideoGithub.mp4
+https://github.com/leokri89/effective-data-platform/blob/8d09b2f739585bcc461c164b3a5567a7fe3bebfc/VideoGithub.mp4
