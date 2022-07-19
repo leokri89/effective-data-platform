@@ -1,0 +1,1 @@
+podman build -t containerized-python-app:tag .

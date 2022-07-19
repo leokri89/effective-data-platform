@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: containerized-python-app
+  labels:
+    name: containerized-python-app
+spec:
+  containers:
+  - name: containerized-python-app
+    image: localy/containerized-python-app:tag
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    ports:
+      - containerPort: 30008
