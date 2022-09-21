@@ -2,7 +2,7 @@
 
 Esse repositório é a minha central de códigos para uma plataforma de dados efetiva e que me ajudam pela vida!
 
-´´´
+```
 effective-data-platform
 ├───airflow-plugins
 ├───clean-raw-data
@@ -32,4 +32,4 @@ effective-data-platform
     ├───convert_image
     ├───mongo
     └───titatic_test
-´´´
+```
