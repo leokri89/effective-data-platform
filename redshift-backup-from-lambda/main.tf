@@ -35,6 +35,21 @@ resource "aws_iam_role_policy" "dynamoLambda-policy" {
         Effect   = "Allow"
         Resource = "*"
       },
+      {
+          Effect: "Allow",
+          Action: "logs:CreateLogGroup",
+          Resource: "arn:aws:logs:us-east-1:781782762636:*"
+      },
+      {
+          Effect: "Allow",
+          Action: [
+              "logs:CreateLogStream",
+              "logs:PutLogEvents"
+          ],
+          Resource: [
+              "arn:aws:logs:us-east-1:781782762636:log-group:/aws/lambda/dynamoAccess:*"
+          ]
+      }
     ]
   })
 }
