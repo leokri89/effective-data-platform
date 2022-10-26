@@ -1,0 +1,25 @@
+#!groovy
+
+pipeline {
+    agent any
+    
+    stages {
+        stage('Build') {
+            steps {
+                sh 'python --version'
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                echo "This is my Test step"
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                echo "This is my Deploy step"
+            }
+        }
+    }
+}

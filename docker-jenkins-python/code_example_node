@@ -1,0 +1,16 @@
+#!groovy
+
+node {
+
+    stage('Build') {
+        python --version
+    }
+    
+    stage('Test') {
+        echo "This is my Test step"
+    }
+    
+    stage('Deploy') {
+        echo "This is my Deploy step"
+    }
+}
