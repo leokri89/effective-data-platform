@@ -27,6 +27,10 @@ WORKDIR /opt/Python39
 
 RUN ./configure --enable-optimizations && make -j 2 && make altinstall && python3.9 --version
 
-ENV PATH="${PATH}:/opt/Python39"
+ENV PATH="/opt/Python39:${PATH}"
+
+WORKDIR /opt
+
+RUN wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py && pip3.9 install virtualenv && pip3.9 install pytest
 
 USER jenkins
