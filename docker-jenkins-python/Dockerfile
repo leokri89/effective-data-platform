@@ -1,7 +1,19 @@
 FROM jenkins/jenkins:lts-jdk11
 # if we want to install via apt
 USER root
-#RUN  apt-get install -y ruby make more-thing-here
+
+RUN apt-get update && apt-get install -y lsb-release
+
+RUN curl -fsSLo /usr/share/keyrings/docker-archive-keyring.asc \
+  https://download.docker.com/linux/debian/gpg
+
+RUN echo "deb [arch=$(dpkg --print-architecture) \
+  signed-by=/usr/share/keyrings/docker-archive-keyring.asc] \
+  https://download.docker.com/linux/debian \
+  $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+
+RUN apt-get update && apt-get install -y docker-ce-cli
+
 RUN apt-get update && \
 apt install -y build-essential \
 zlib1g-dev \
@@ -29,8 +41,8 @@ RUN ./configure --enable-optimizations && make -j 2 && make altinstall && python
 
 ENV PATH="/opt/Python39:${PATH}"
 
-WORKDIR /opt
-
-RUN wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py && pip3.9 install virtualenv && pip3.9 install pytest
+RUN wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py
 
 USER jenkins
+
+RUN jenkins-plugin-cli --plugins "blueocean:1.26.0 docker-workflow:563.vd5d2e5c4007f"
