@@ -1,0 +1,34 @@
+
+#!groovy
+node('aws-worker') {
+        env.http_proxy = "http://proxy.aws.intranet.pagseguro.uol:80"
+        env.https_proxy = "http://proxy.aws.intranet.pagseguro.uol:80"
+
+        deleteDir()
+
+        try {
+            docker.image('python:3.8').inside('-u root') { 
+            
+            stage(name: "Checkout") {
+                checkout scm
+            }
+
+            stage("Test"){}
+
+            stage(name: "install dependencies") {
+                sh("pip install -r ./aws-sandbox-cluster/requirements/requirements.txt")
+            }
+
+            withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: "ML-AWS-SANDBOX-PROD", secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                stage("Run ${params.OPERATION} operation"){
+                    sh "python3 ./aws-sandbox-cluster/scripts/redshift-user.py ${params.BU} \"${params.USERNAME}\" ${params.OPERATION} ${params.SUPERUSER}"
+                }
+            }
+
+            deleteDir()
+            }
+
+        } catch (Exception e){
+            throw e;
+        }
+    }
