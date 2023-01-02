@@ -8,7 +8,7 @@ https://www.jenkins.io/doc/book/installing/docker/
 
 docker network create jenkins
 
-docker run --name meta-docker --rm --detach ^
+docker run --name meta-docker --detach ^
 --privileged --network jenkins --network-alias docker ^
 --env DOCKER_TLS_CERTDIR=/certs ^
 --volume jenkins-docker-certs:/certs/client ^
@@ -30,3 +30,9 @@ docker run --name jenkins ^
 --publish 8080:8080 ^
 --publish 50000:50000 ^
 --name jenkins dockerjenkins
+
+docker stop jenkins
+docker stop meta-docker
+
+docker start meta-docker
+docker start jenkins
