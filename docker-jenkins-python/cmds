@@ -1,7 +1,7 @@
 # Versao sem Docker:
 #docker build -t pyjenkins .
 #docker run -d -p 8080:8080 -p 50000:50000 -m 4000MB --cpus=4 pyjenkins
-
+#docker run -d -p 8080:8080 -p 50000:50000 -m 4000MB --cpus=4 --name jenkins-standalone jenkins/jenkins:lts-jdk11
 
 # Versao com Docker:
 https://www.jenkins.io/doc/book/installing/docker/
@@ -31,8 +31,6 @@ docker run --name jenkins ^
 --publish 50000:50000 ^
 --name jenkins dockerjenkins
 
-docker stop jenkins
-docker stop meta-docker
+docker stop jenkins && docker stop meta-docker
 
-docker start meta-docker
-docker start jenkins
+docker start meta-docker && docker start jenkins
