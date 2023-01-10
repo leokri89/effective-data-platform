@@ -1,0 +1,51 @@
+#!groovy
+
+pipeline {
+    agent { 
+        docker {
+            image 'python:3.9'
+            args '-u root'
+        }
+        //dockerfile true
+    }
+    environment {
+        VERSION = "0.1.0"
+    }
+    parameters {
+        string(name: 'snapshotIdentitifier', description: 'Identificador do snapshot')
+        string(name: 'schemaOrigem', description: 'Nome do schema da tabela a ser recuperada')
+        string(name: 'tabelaOrigem', description: 'Nome da tabela a se recuperada no dax')
+        string(name: 'schemaDestino', description: 'Nome do schema de destino da recuperacao no dax')
+        string(name: 'tabelaDestino', description: 'Nome da tabela de destino no dax')
+    }
+    stages {
+        stage('checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage("Python Libs Install") {
+            steps {
+                sh "echo \"Install Python LIBs\""
+                //sh "pip install --user --disable-pip-version-check --quiet boto3"
+            }
+        }
+        stage("Recuperacao da tabela") {
+            steps {
+                sh "echo \"Recuperacao em andamento\""
+                //sh "python app.py --access_key=\"${accessKey}\" --secret_key=\"${secretKey}\" --snapshot-identifier=\"${snapshotIdentitifier}\" --source-schema=\"${schemaOrigem}\" --source-table=\"${tabelaOrigem}\" --target-schema=\"${schemaDestino}\" --target-table=\"${tabelaDestino}\""
+            }
+        }
+    }
+    post {
+        // Clean after build
+        always {
+            cleanWs(cleanWhenNotBuilt: false,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true,
+                    patterns: [[pattern: '.gitignore', type: 'INCLUDE'],
+                            [pattern: '.propsfile', type: 'EXCLUDE']])
+        }
+    }
+}
