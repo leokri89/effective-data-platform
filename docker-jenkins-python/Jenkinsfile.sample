@@ -1,0 +1,67 @@
+#!groovy
+
+def creationSuccess = false
+
+pipeline {
+    agent { 
+        docker {
+            image 'python:3.9'
+            args '-u root'
+        }
+    }
+    environment {
+        VERSION = "0.1.0"
+    }
+    parameters {
+        string(name: 'dataDomain', defaultValue: 'Dominio de dados', description: 'Nome do dominio de dados')
+        string(name: 'userName', defaultValue: 'Username', description: 'Nome do usuário no dax')
+        string(name: 'userPassword', defaultValue: '********', description: 'Senha do usuário no dax')
+    }
+    stages {
+        stage('checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage("Stage 1") {
+            steps {
+                sh "pip install --user --disable-pip-version-check --quiet -r click"
+            }
+        }
+        stage("Stage 2") {
+            steps {
+                script {
+                    try {
+                        sh "python --version"
+                        creationSuccess = true
+                    }
+                    catch (Exception e) {
+                        creationSuccess = false
+                    }
+                }
+            }
+        }
+        stage("Stage 3") {
+            steps {
+                script {
+                    if (creationSuccess) {
+                        sh "echo 'Sucesso na stage 2'"
+                    } else {
+                        sh "echo 'Falha na stage 2'"
+                    }
+                }
+            }
+        }
+    }
+    post {
+        // Clean after build
+        always {
+            cleanWs(cleanWhenNotBuilt: false,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true,
+                    patterns: [[pattern: '.gitignore', type: 'INCLUDE'],
+                            [pattern: '.propsfile', type: 'EXCLUDE']])
+        }
+    }
+}
