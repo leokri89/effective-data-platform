@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pythonapi-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: pythonapi
+  ports:
+  - port: 8888
+    targetPort: 80
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: krakend-service
+spec:
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: krakend
