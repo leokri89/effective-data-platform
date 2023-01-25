@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pythonapi
+spec:
+  selector:
+    matchLabels:
+      app: pythonapi
+  template:
+    metadata:
+      labels:
+        app: pythonapi
+    spec:
+      containers:
+      - name: pythonapi
+        image: pythonapi:v0.2.0
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80

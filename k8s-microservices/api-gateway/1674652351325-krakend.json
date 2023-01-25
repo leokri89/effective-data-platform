@@ -18,9 +18,7 @@
           "encoding": "json",
           "sd": "static",
           "method": "GET",
-          "host": [
-            "http://pythonapi-service:8888"
-          ],
+          "host": ["pythonapi-service"],
           "disable_host_sanitize": false
         }
       ]
