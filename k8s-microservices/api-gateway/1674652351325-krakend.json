@@ -1,0 +1,27 @@
+{
+  "$schema": "https://www.krakend.io/schema/v3.json",
+  "version": 3,
+  "name": "KrakenServices",
+  "timeout": "3000ms",
+  "cache_ttl": "300s",
+  "output_encoding": "json",
+  "debug_endpoint": true,
+  "allow_insecure_connections": false,
+  "endpoints": [
+    {
+      "endpoint": "/v1/check",
+      "method": "GET",
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/",
+          "encoding": "json",
+          "sd": "static",
+          "method": "GET",
+          "host": ["pythonapi-service"],
+          "disable_host_sanitize": false
+        }
+      ]
+    }
+  ]
+}

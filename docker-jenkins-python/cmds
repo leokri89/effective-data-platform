@@ -21,8 +21,8 @@ docker build -t dockerjenkins .
 docker run --name jenkins ^
 --restart=on-failure ^
 --detach ^
---memory 4000MB ^
---cpus=4 ^
+--memory 8000MB ^
+--cpus=12 ^
 --network jenkins --env DOCKER_HOST=tcp://docker:2376 ^
 --env DOCKER_CERT_PATH=/certs/client --env DOCKER_TLS_VERIFY=1 ^
 --volume jenkins-data:/var/jenkins_home ^
@@ -34,3 +34,5 @@ docker run --name jenkins ^
 docker stop jenkins && docker stop meta-docker
 
 docker start meta-docker && docker start jenkins
+
+docker run -d -p 5000:5000 --restart=on-failure --name registry registry:2
