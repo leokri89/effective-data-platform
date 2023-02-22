@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dax-tools-app
+  namespace: dataplatform-analytics
+  labels:
+    name: dax-tools-app
+spec:
+  selector:
+    matchLabels:
+      app: dax-tools-app
+  template:
+    metadata:
+      labels:
+        app: dax-tools-app
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: dax-tools-app
+        image: <IMG>
+        resources:
+          limits:
+            memory: "1024Mi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 80
+          protocol: TCP
+          name: http

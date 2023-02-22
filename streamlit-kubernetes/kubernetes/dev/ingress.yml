@@ -1,0 +1,19 @@
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: dax-tools-app
+  namespace: dataplatform-analytics
+  annotations:
+    kubernetes.io/ingress.class: traefik-internal
+spec:
+  rules:
+    - host: URL
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dax-tools-app
+                port:
+                  number: 80
