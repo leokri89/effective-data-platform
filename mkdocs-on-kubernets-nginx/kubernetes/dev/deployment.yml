@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dax-docs
+spec:
+  selector:
+    matchLabels:
+      app: dax-docs
+  template:
+    metadata:
+      labels:
+        app: dax-docs
+    spec:
+      containers:
+      - name: dax-docs
+        image: dax-docs:0.1.0
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
