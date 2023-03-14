@@ -1,0 +1,37 @@
+#!groovy
+
+pipeline {
+    agent any
+    environment {
+        IMG_NAME = ""
+        VERSION = "0.1.0"
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage("Build Image") {
+            steps {
+                sh "docker build -t ${IMG_NAME}:${IMG_VERSION} -f Dockerfile ."
+            }
+        }
+        stage("Run") {
+            steps {
+                sh "docker run -d --rm -p 8000:8080 --name ${IMG_NAME} ${IMG_NAME}:${IMG_VERSION}"
+            }
+        }
+    }
+    post {
+        // Clean after build
+        always {
+            cleanWs(cleanWhenNotBuilt: false,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true,
+                    patterns: [[pattern: '.gitignore', type: 'INCLUDE'],
+                            [pattern: '.propsfile', type: 'EXCLUDE']])
+        }
+    }
+}
