@@ -3,7 +3,7 @@
 pipeline {
     agent any
     environment {
-        IMG_NAME = ""
+        IMG_NAME = "docs"
         VERSION = "0.1.0"
     }
     stages {
