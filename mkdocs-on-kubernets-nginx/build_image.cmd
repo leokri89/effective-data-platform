@@ -8,4 +8,4 @@ docker rm -f %CONTAINER_NAME%
 docker rmi -f %IMG_NAME%:%IMG_VERSION%
 docker build -t %IMG_NAME%:%IMG_VERSION% -f Dockerfile .
 
-docker run -d --rm -p 8080:8080 --name %CONTAINER_NAME% %IMG_NAME%:%IMG_VERSION%
+docker run -d --rm -p 8000:8080 --name %CONTAINER_NAME% %IMG_NAME%:%IMG_VERSION%

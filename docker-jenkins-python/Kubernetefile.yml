@@ -1,0 +1,30 @@
+# docker run --name meta-docker --detach ^
+# --privileged --network jenkins --network-alias docker ^
+# --env DOCKER_TLS_CERTDIR=/certs ^
+# --volume jenkins-docker-certs:/certs/client ^
+# --volume jenkins-data:/var/jenkins_home ^
+# --publish 2376:2376 ^
+# docker:dind
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meta-docker
+spec:
+  selector:
+    matchLabels:
+      app: meta-docker
+  template:
+    metadata:
+      labels:
+        app: meta-docker
+    spec:
+      containers:
+      - name: meta-docker
+        image: docker:dind
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: <Port>
