@@ -19,7 +19,7 @@ pipeline {
         }
         stage("Run") {
             steps {
-                sh "docker run -d --rm --name ${IMG_NAME} ${IMG_NAME}:${VERSION}"
+                sh "docker run -d --rm -p 8000:8080 --name ${IMG_NAME} ${IMG_NAME}:${VERSION}"
             }
         }
         stage("Test HTTP") {
