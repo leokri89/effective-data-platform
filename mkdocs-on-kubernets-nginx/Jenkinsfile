@@ -14,7 +14,7 @@ pipeline {
         }
         stage("Build Image") {
             steps {
-                sh "docker build -t ${IMG_NAME}:${VERSION} -f Dockerfile mkdocs-on-kubernets-nginx/."
+                sh "cd mkdocs-on-kubernets-nginx/ && docker build -t ${IMG_NAME}:${VERSION} -f Dockerfile ."
             }
         }
         stage("Run") {
