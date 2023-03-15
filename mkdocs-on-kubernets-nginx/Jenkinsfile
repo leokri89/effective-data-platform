@@ -14,12 +14,33 @@ pipeline {
         }
         stage("Build Image") {
             steps {
-                sh "docker build -t ${IMG_NAME}:${VERSION} -f Dockerfile ."
+                sh "docker build -t ${IMG_NAME}:${VERSION} -f Dockerfile mkdocs-on-kubernets-nginx/."
             }
         }
         stage("Run") {
             steps {
-                sh "docker run -d --rm -p 8000:8080 --name ${IMG_NAME} ${IMG_NAME}:${VERSION}"
+                sh "docker run -d --rm --name ${IMG_NAME} ${IMG_NAME}:${VERSION}"
+            }
+        }
+        stage("Test HTTP") {
+            steps {
+                script {
+                    final String url = "http://localhost:8080"
+
+                    final def (String response, int code) =
+                        sh(script: "curl -s -w '\\n%{response_code}' $url", returnStdout: true)
+                            .trim()
+                            .tokenize("\n")
+
+                        echo "HTTP response status code: $code"
+
+                        if (code == 200) {
+                            echo response
+                            sh "exit 0"
+                        }
+
+                    sh "exit 1"
+                }
             }
         }
     }
