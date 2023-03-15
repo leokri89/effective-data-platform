@@ -25,7 +25,7 @@ pipeline {
         stage("Test HTTP") {
             steps {
                 script {
-                    final String url = "http://localhost:8080"
+                    final String url = "http://localhost:8000"
 
                     final def (String response, int code) =
                         sh(script: "curl -s -w '\\n%{response_code}' $url", returnStdout: true)
