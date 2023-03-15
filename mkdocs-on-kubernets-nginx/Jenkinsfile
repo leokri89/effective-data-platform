@@ -19,13 +19,16 @@ pipeline {
         }
         stage("Run") {
             steps {
-                sh "docker run -d --rm -p 8000:8080 --name ${IMG_NAME} ${IMG_NAME}:${VERSION}"
+                sh "docker run -d --rm --name ${IMG_NAME} ${IMG_NAME}:${VERSION}"
             }
         }
         stage("Test HTTP") {
             steps {
                 script {
-                    final String url = "http://localhost:8000"
+                    final def (String ipaddress) = sh(script: "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' docs")
+                    final String url = "http://${ipaddress}:8080"
+
+                    echo "URL: $url"
 
                     final def (String response, int code) =
                         sh(script: "curl -s -w '\\n%{response_code}' $url", returnStdout: true)
