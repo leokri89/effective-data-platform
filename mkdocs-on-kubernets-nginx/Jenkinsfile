@@ -12,6 +12,11 @@ pipeline {
                 checkout scm
             }
         }
+        stage("Clean previous image") {
+            steps {
+                sh "docker stop $(docker ps -a -q --filter ancestor=docs:0.1.0) || docker rmi $(docker images | grep '${IMG_NAME}:${VERSION}') || echo Cleaned"
+            }
+        }
         stage("Build Image") {
             steps {
                 sh "cd mkdocs-on-kubernets-nginx/ && docker build -t ${IMG_NAME}:${VERSION} -f Dockerfile ."
@@ -19,7 +24,7 @@ pipeline {
         }
         stage("Run") {
             steps {
-                sh "docker run -d --rm --name ${IMG_NAME} ${IMG_NAME}:${VERSION}"
+                sh "docker stop ${IMG_NAME} & docker run -d --rm --name ${IMG_NAME} ${IMG_NAME}:${VERSION}"
             }
         }
         stage("Test HTTP") {
@@ -35,12 +40,12 @@ pipeline {
                             .trim()
                             .tokenize("\n")
 
-                        echo "HTTP response status code: $code"
+                    echo "HTTP response status code: $code"
 
-                        if (code == 200) {
-                            echo response
-                            sh "exit 0"
-                        }
+                    if (code == 200) {
+                        echo response
+                        sh "exit 0"
+                    }
 
                     sh "exit 1"
                 }
