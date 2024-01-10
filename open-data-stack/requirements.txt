@@ -1,0 +1,6 @@
+confluent_kafka[avro]
+fastavro
+Faker
+apache-flink
+notebook
+urllib3==1.26.6

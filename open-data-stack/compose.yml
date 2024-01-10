@@ -1,0 +1,237 @@
+version: "3"
+
+networks:
+  datastack-network:
+    ipam:
+      config:
+        - subnet: 182.20.80.0/24
+
+services:
+  minio:
+    image: "minio/minio:RELEASE.2024-01-01T16-36-33Z-cpuv1"
+    container_name: "minio"
+    hostname: "minio"
+    environment:
+      - MINIO_ROOT_USER=meuusuario
+      - MINIO_ROOT_PASSWORD=meupassedebatalha
+      - MINIO_VOLUMES="/mnt/data"
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - C:/Users/pve_lkrivickas/repositorio/tmp/flink/minio/data:/mnt/data
+    networks:
+      datastack-network:
+        ipv4_address: 182.20.80.100
+    command: minio server --console-address ":9001"
+
+  zoo1:
+    image: zookeeper:3.9.1-jre-17
+    restart: always
+    container_name: "zoo1"
+    hostname: zoo1
+    ports:
+      - 2181:2181
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+    networks:
+      datastack-network:
+        ipv4_address: 182.20.80.110
+  zoo2:
+    image: zookeeper:3.9.1-jre-17
+    restart: always
+    container_name: "zoo2"
+    hostname: zoo2
+    ports:
+      - 2182:2181
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+    networks:
+      datastack-network:
+        ipv4_address: 182.20.80.111
+  zoo3:
+    image: zookeeper:3.9.1-jre-17
+    restart: always
+    container_name: "zoo3"
+    hostname: zoo3
+    ports:
+      - 2183:2181
+    environment:
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+    networks:
+      datastack-network:
+        ipv4_address: 182.20.80.112
+
+  kafka1:
+    image: "confluentinc/cp-kafka:7.5.2"
+    container_name: "kafka1"
+    hostname: "kafka1"
+    ports:
+      - "8097:8097"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zoo1:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:8097,INTERNAL://kafka1:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    networks:
+      datastack-network:
+        ipv4_address: 182.20.80.120
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+  kafka2:
+    image: "confluentinc/cp-kafka:7.5.2"
+    container_name: "kafka2"
+    hostname: "kafka2"
+    ports:
+      - "8098:8098"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zoo1:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:8098,INTERNAL://kafka2:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    networks:
+      datastack-network:
+        ipv4_address: 182.20.80.121
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+  kafka3:
+    image: "confluentinc/cp-kafka:7.5.2"
+    container_name: "kafka3"
+    hostname: "kafka3"
+    ports:
+      - "8099:8099"
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zoo1:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:8099,INTERNAL://kafka3:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    networks:
+      datastack-network:
+        ipv4_address: 182.20.80.122
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+  schema_registry:
+    image: "confluentinc/cp-schema-registry:7.5.2"
+    container_name: "schema_registry"
+    hostname: "schema_registry"
+    ports:
+      - "8100:8100"
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka1:9092,PLAINTEXT://kafka2:9092,PLAINTEXT://kafka3:9092"
+      SCHEMA_REGISTRY_HOST_NAME: "schema_registry"
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8100"
+      SCHEMA_REGISTRY_DEBUG: true
+    networks:
+      datastack-network:
+        ipv4_address: 182.20.80.123
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+
+  flink-jobmanager:
+    build:
+      dockerfile: flink.Dockerfile
+    #image: flink:1.18.0-scala_2.12
+    container_name: "flink-jobmanager"
+    hostname: "flink-jobmanager"
+    ports:
+      - "8081:8081"
+      - "8082:8082"
+      - "8083:8083"
+    environment:
+      JOB_MANAGER_RPC_ADDRESS: "flink-jobmanager"
+      JOB_MANAGER_RPC_PORT: "6123"
+      JOB_MANAGER_HEAP_MEMORY: "1024m"
+      JOB_MANAGER_WEB_PORT: "8081"
+      REST_PORT: "8082"
+      TASK_MANAGER_HEAP_MEMORY: "1024m"
+      FLINK_PROPERTIES: "jobmanager.rpc.address: flink-jobmanager"
+    networks:
+      datastack-network:
+        ipv4_address: 182.20.80.131
+    command: ["jobmanager"]
+  flink-taskmanager1:
+    build:
+      dockerfile: flink.Dockerfile
+    #image: flink:1.18.0-scala_2.12
+    container_name: "flink-taskmanager1"
+    hostname: "flink-taskmanager1"
+    # deploy:
+    #   replicas: 3
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 3
+    networks:
+      datastack-network:
+        ipv4_address: 182.20.80.132
+    command: ["taskmanager"]
+    depends_on:
+      - flink-jobmanager
+  flink-taskmanager2:
+    build:
+      dockerfile: flink.Dockerfile
+    #image: flink:1.18.0-scala_2.12
+    container_name: "flink-taskmanager2"
+    hostname: "flink-taskmanager2"
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 3
+    networks:
+      datastack-network:
+        ipv4_address: 182.20.80.133
+    command: ["taskmanager"]
+    depends_on:
+      - flink-jobmanager
+  flink-sql-client:
+    build:
+      dockerfile: flink.Dockerfile
+    #image: flink:1.18.0-scala_2.12
+    container_name: flink-sql-client
+    hostname: flink-sql-client
+    stdin_open: true
+    tty: true
+    depends_on:
+      - flink-jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        rest.address: flink-jobmanager
+    networks:
+      datastack-network:
+        ipv4_address: 182.20.80.134
+    command: bin/sql-client.sh
+
+  notebook:
+    build:
+      dockerfile: jupyter.Dockerfile
+    #image: local-pyflink
+    container_name: jupyter
+    hostname: jupyter
+    networks:
+      datastack-network:
+        ipv4_address: 182.20.80.20
+    ports:
+      - "3000:3000"
+      - "3001:8081"
+    volumes:
+      - "C:/Users/pve_lkrivickas/repositorio/tmp/flink/notebooks:/notebooks"
+      - "C:/Users/pve_lkrivickas/repositorio/tmp/flink/logs:/logs"
+      - "C:/Users/pve_lkrivickas/repositorio/tmp/flink/libs:/libs"
